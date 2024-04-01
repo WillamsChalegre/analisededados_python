@@ -1,6 +1,7 @@
 # Importando as bibliotecas
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Acessando o dataset
 df = pd.read_csv('C:/Users/User/Desktop/Analises de Dados/_Dataset/Hotel.Dataset.csv', encoding='latin1')
@@ -88,3 +89,49 @@ plt.xlabel('StarRating')
 plt.ylabel('QtdHotéis')
 plt.title('Quantidade de Hoteis por Star Rating')
 plt.tight_layout()
+
+
+# ANALISE DOS TOP 5 DOS PAISES POR STAR RATING
+
+# Ranking dos 5 paises que contem mais hotéis no Dataset
+qtdHoteis['countyName'].value_counts().sort_values(ascending=False).head(5)
+
+# Ranking dos 5 Paises que tem mais Hóteis 5 estrelas
+rkStar5 = qtdHoteis[qtdHoteis['StarRating']==5].groupby('countyName').size().sort_values(ascending=False).head(5)
+
+# Ranking dos 5 Paises que tem mais Hóteis 4 estrelas
+rkStar4 = qtdHoteis[qtdHoteis['StarRating']==4].groupby('countyName').size().sort_values(ascending=False).head(5)
+
+# Ranking dos 5 Paises que tem mais Hóteis 3 estrelas
+rkStar3 = qtdHoteis[qtdHoteis['StarRating']==3].groupby('countyName').size().sort_values(ascending=False).head(5)
+
+# Ranking dos 5 Paises que tem mais Hóteis 2 estrelas
+rkStar2 = qtdHoteis[qtdHoteis['StarRating']==2].groupby('countyName').size().sort_values(ascending=False).head(5)
+
+# Ranking dos 5 Paises que tem mais Hóteis 1 estrelas
+rkStar1 = qtdHoteis[qtdHoteis['StarRating']==1].groupby('countyName').size().sort_values(ascending=False).head(5)
+
+# Criando uam tabela com StarRating 
+rkCountryStar = pd.DataFrame(qtdHoteis, columns=['StarRating'])
+# Retirando os valores duplicados
+rkCountryStar = rkCountryStar.drop_duplicates()
+
+# Função para a criação da nova coluna de lista de paises por rating
+def countrys (row):
+    if row['StarRating'] == 1:
+        return rkStar1.index.tolist()
+    elif row['StarRating'] == 2:
+        return rkStar2.index.tolist()
+    elif row['StarRating'] == 3:
+        return rkStar3.index.tolist()
+    elif row['StarRating'] == 4:
+        return rkStar4.index.tolist()
+    elif row['StarRating'] == 5:
+        return rkStar5.index.tolist()
+    else:
+        return None
+    
+# Criando nova coluna de lista dos top 5 paises por rating   
+rkCountryStar['Countrys'] = rkCountryStar.apply(countrys, axis=1)
+rkCountryStar = rkCountryStar.sort_values(by='StarRating', ascending=True)
+rkCountryStar
