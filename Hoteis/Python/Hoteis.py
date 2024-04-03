@@ -166,7 +166,7 @@ custom_stopwords = ['li', 'p', 'el', 'may', 'property', 'gouna', 'mi', 'hotel', 
                     , 'additional', 'daily' 'charge', 'housekeeping', 'daily', 'charge', 'cutlery', 'plates', 'glasses'
                     , 'sanitized', 'removed', 'luggage', 'first', 'aid', 'kit', 'stationary', 'printed', '(', ')', 'onsite'
                     , 'common', 'surcharge', 'shuttle', 'check-in/check-out', 'designated', 'currency', 'car', 'hire'
-                    , 'exchange', 'ironing', 'newspapaers'
+                    , 'exchange', 'ironing', 'newspapaers', 'exit'
                    ]
 stopWords.update(custom_stopwords)
 qtdHoteis['HotelFacilities'] = qtdHoteis['HotelFacilities'].apply(lambda x: [word for word in x if word not in stopWords])
