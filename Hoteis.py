@@ -2,6 +2,11 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.probability import FreqDist
+from collections import Counter
+
 
 # Acessando o dataset
 df = pd.read_csv('C:/Users/User/Desktop/Analises de Dados/_Dataset/Hotel.Dataset.csv', encoding='latin1')
@@ -135,3 +140,62 @@ def countrys (row):
 rkCountryStar['Countrys'] = rkCountryStar.apply(countrys, axis=1)
 rkCountryStar = rkCountryStar.sort_values(by='StarRating', ascending=True)
 rkCountryStar
+
+
+# CRIAÇÃO DE UM MODELO NLP PARA CRIAR UMA ANALISE DE SENTIMENTO DA AVALIAÇÃO DO CLIENTE
+
+# Pré-processamento dos dados
+qtdHoteis['HotelFacilities'] = qtdHoteis['HotelFacilities'].astype(str) # Transformando a coluna em String
+qtdHoteis['HotelFacilities'] = qtdHoteis['HotelFacilities'].str.lower() # Minuscula
+
+qtdHoteis['HotelFacilities'] = qtdHoteis['HotelFacilities'].apply(word_tokenize) # Tokenização
+
+# Criando uma lista de palavras para fazer a limpeza dos dados de Facillities
+stopWords = set(stopwords.words('english'))
+custom_stopwords = ['li', 'p', 'el', 'may', 'property', 'gouna', 'mi', 'hotel', 'site', 'available', 'plastic', 'number'
+                    , 'comprehensive', 'policy', 'water', 'bottles', 'reusable', 'free', 'nearby', 'cleaning'
+                    , 'guest', 'dispenser', 'toiletries', 'airport', 'local', 'front', 'food', 'service', 'dry', 'desk'
+                    , 'products', 'energy', 'source', 'solar', 'bulk', 'grey', 'system', 'breakfast', 'used', 'furniture'
+                    , 'straws', 'soda', 'stirrers', 'recycling', 'swimming', 'cups', 'tableware', 'sailing','areas', 'rooms'
+                    , 'accommodation', 'services', 'internet', 'guests', 'terrace', 'private', 'physical', 'facilities'
+                    , 'laundry', 'throughout', 'staff', 'key', 'heating', 'area', 'distancing','safety', 'sun', 'family'
+                    , 'shared', 'provided', 'towels', 'air', 'conditioning', 'protocols', 'follow', 'directed', 'invoice'
+                    , 'room', 'use', 'linens', 'authorities', 'authority', 'chemicals', 'guidelines', 'accordance', 'effective'
+                    , 'coronavirus', 'disinfected', 'stays', 'washed', 'hand', 'menus', 'followed', 'rules', 'cashless'
+                    , 'payment', 'access', 'sanitizer', 'storage', 'allowed', 'fire', 'extinguishers', 'accessible', 'bbq'
+                    , 'additional', 'daily' 'charge', 'housekeeping', 'daily', 'charge', 'cutlery', 'plates', 'glasses'
+                    , 'sanitized', 'removed', 'luggage', 'first', 'aid', 'kit', 'stationary', 'printed', '(', ')', 'onsite'
+                    , 'common', 'surcharge', 'shuttle', 'check-in/check-out', 'designated', 'currency', 'car', 'hire'
+                    , 'exchange', 'ironing', 'newspapaers'
+                   ]
+stopWords.update(custom_stopwords)
+qtdHoteis['HotelFacilities'] = qtdHoteis['HotelFacilities'].apply(lambda x: [word for word in x if word not in stopWords])
+
+# criando um dicionario para adicionar as facilities com respectivos valores de rating
+facilityRating = {}
+
+# Adicionando os valores e as facilites no dicionário
+for index, row in qtdHoteis.iterrows():
+    for facility in row['HotelFacilities']:
+        if facility not in facilityRating:
+            facilityRating[facility] = []
+        facilityRating[facility].append(row['StarRating'])
+        
+ # Calculando a média para trazer a média de entre os ratings de cada facility       
+facilityAvgRating = {facility: sum(ratings)/len(ratings) for facility, ratings in facilityRating.items()} # Average Rating
+sortedAvg = sorted(facilityAvgRating.items(), key=lambda x: [1], reverse=True) # Average Sorted
+
+topFacilities = [facility[0] for facility in sortedAvg[:10]] # Top 10
+avgRating = [facility[1] for facility in sortedAvg[:10]] # Average Rating
+
+# Criando o gráfico para trazer o top 10 de facility e as médias do StarRating 
+plt.figure(figsize=(10,6))
+plt.barh(topFacilities, avgRating, color= 'skyblue', label= 'Average Rating')
+
+for facility, rating in zip(topFacilities, avgRating):
+    plt.text(rating, facility, str(round(rating, 2)), ha='left', va='center', color='black', fontsize=10)
+    
+plt.xlabel('Average Rating')
+plt.title('Top 10 Facilities by Average Rating')
+plt.gca().invert_yaxis()
+plt.show()
