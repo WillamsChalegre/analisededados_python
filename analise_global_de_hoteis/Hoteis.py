@@ -1,17 +1,16 @@
 # Importando as bibliotecas
 import pandas as pd
+import polars as pl
 import matplotlib.pyplot as plt
-import numpy as np
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.probability import FreqDist
-from collections import Counter
+
 
 
 # Acessando o dataset
 df = pd.read_csv('C:/Users/User/Desktop/Analises de Dados/_Dataset/Hotel.Dataset.csv', encoding='latin1')
 df
-
 # Analisando as informações e tipos das colunas
 df.info()
 
@@ -97,9 +96,35 @@ plt.tight_layout()
 
 
 # ANALISE DOS TOP 5 DOS PAISES POR STAR RATING
-
 # Ranking dos 5 paises que contem mais hotéis no Dataset
-qtdHoteis['countyName'].value_counts().sort_values(ascending=False).head(5)
+rkHoteisMais = qtdHoteis['countyName'].value_counts().sort_values(ascending=False).head(5)
+
+plt.figure(figsize=(9, 5))
+plt.bar(rkHoteisMais.index, rkHoteisMais.values, color='lightgreen')
+
+# Adiconando os labels no topo das barras
+for x, y in zip(rkHoteisMais.index, rkHoteisMais.values):
+    plt.text(x, y, str(y), ha='center', va='bottom')
+     
+plt.xlabel('Paises')
+plt.ylabel('QtdHotéis')
+plt.title('Paises que contém mais Hotéis')
+plt.tight_layout()
+
+# Ranking dos 5 paises que contem menos hotéis no Dataset
+rkHoteisMenos = qtdHoteis['countyName'].value_counts().sort_values(ascending=True).head(5)
+
+plt.figure(figsize=(9, 5))
+plt.bar(rkHoteisMenos.index, rkHoteisMenos.values, color='red')
+
+# Adiconando os labels no topo das barras
+for x, y in zip(rkHoteisMenos.index, rkHoteisMenos.values):
+    plt.text(x, y, str(y), ha='center', va='bottom')
+     
+plt.xlabel('Paises')
+plt.ylabel('QtdHotéis')
+plt.title('Paises que contém menos Hotéis')
+plt.tight_layout()
 
 # Ranking dos 5 Paises que tem mais Hóteis 5 estrelas
 rkStar5 = qtdHoteis[qtdHoteis['StarRating']==5].groupby('countyName').size().sort_values(ascending=False).head(5)
